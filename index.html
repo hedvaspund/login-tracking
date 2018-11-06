@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+   <meta charset = "utf-8" />
+   <title>Banking</title>
+   <script language = "javascript" type = "text/javascript">
+      var wsUri = "ws://localhost:5678/";
+      var output;
+
+      function init() {
+        output = document.getElementById("output");
+        getTrackingList();
+      }
+    
+      function getTrackingList() {
+         websocket = new WebSocket(wsUri);
+      
+         websocket.onopen = function(evt) {
+            onOpen(evt)
+         };
+    
+         websocket.onmessage = function(evt) {
+
+            onMessage(evt);
+
+         };
+    
+         websocket.onerror = function(evt) {
+            onError(evt)
+         };
+      }
+    
+      function onOpen(evt) {
+        doSend(websocket.send(JSON.stringify({action: "track_list"})));
+      }
+    
+      function onMessage(evt) {
+        var res = JSON.parse(evt.data)
+				arrayLength = res.length
+				str = "<table><th>username</th><th>password</th>"
+				for (var i = 0; i < arrayLength; i++) {
+					str += '<tr><td>'+res[i].username+'</td><td>'+res[i].password+'</td></tr>'
+				}
+				str += '</table>'
+        writeToScreen('<span style = "color: blue;">'+str+'</span>');
+      }
+
+      function onError(evt) {
+         writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+      }
+    
+      function doSend(message) {
+         websocket.send(message);
+      }
+    
+      function writeToScreen(message) {
+         var pre = document.createElement("p"); 
+         pre.style.wordWrap = "break-word"; 
+         pre.innerHTML = message; output.appendChild(pre);
+      }
+    
+      window.addEventListener("load", init, false);
+    
+   </script>
+  
+   <h2>Tracking List</h2>
+   <div id = "output"></div> 
+  
+</html>
